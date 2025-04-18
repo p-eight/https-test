@@ -6,9 +6,7 @@
 
 int main()
 {
-	IDatabase* db = nullptr; // Aqui você deve inicializar o banco de dados
-	EventLogger logger(db);
-    std::cout << "Hello World!\n";
+    std::cout << "HTTPS Server starting..." << std::endl;
 }
 
 // Executar programa: Ctrl + F5 ou Menu Depurar > Iniciar Sem Depuração

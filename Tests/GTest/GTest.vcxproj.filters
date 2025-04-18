@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\packages\gmock.1.11.0\lib\native\src\gtest\src\gtest_main.cc">
+      <Filter>gtest_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>gtest_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>gtest_sources</Filter>
+    </ClCompile>
+    <ClCompile Include="EventLoggerTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\Core\EventLogger.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{ca3d2b7f-4ef2-4968-8f30-0aeb7fc441f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gtest_sources">
+      <UniqueIdentifier>{70e25563-c4c1-4076-840b-56e571dd1245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{71795e29-77db-408d-aa26-b616736164e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>gtest_sources</Filter>
+    </ClInclude>
+    <ClInclude Include="MockDatabase.hpp">
+      <Filter>Tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

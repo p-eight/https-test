@@ -31,17 +31,18 @@ struct sys_event
 class  IDatabase
 {
 public:
+
 	virtual ~IDatabase() = default;
 	virtual bool connect(const std::string& connection_string) = 0;
 	virtual void disconnect() = 0;
-	virtual bool add_client(const client& new_client) = 0;
+	virtual int add_client(int client_ip) = 0;
 	virtual bool remove_client(int client_id) = 0;
 	virtual bool update_client(const client& updated_client) = 0;
 	virtual client get_client_by_id(int client_id) = 0;
 	virtual client get_client_by_ip(int client_ip) = 0;
 	virtual int get_client_id_by_ip(int client_ip) = 0;
 	virtual int get_client_ip_by_id(int client_id) = 0;
-	virtual bool add_event(const event& new_event) = 0;
+	virtual int add_event(const event& new_event) = 0;
 	virtual bool remove_event(int event_id) = 0;
 	virtual bool update_event(const event& updated_event) = 0;
 	virtual bool set_event_response(int event_id, const std::string& response) = 0;

@@ -135,6 +135,8 @@
   <ItemGroup>
     <ClInclude Include="Core\EventLogger.hpp" />
     <ClInclude Include="Core\IDatabase.hpp" />
+    <ClInclude Include="ILogger.hpp" />
+    <ClInclude Include="IServer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
