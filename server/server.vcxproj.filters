@@ -19,6 +19,12 @@
     <ClCompile Include="server.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="SyncHTTPServer.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncHTTPServer.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\IDatabase.hpp">
@@ -32,6 +38,12 @@
     </ClInclude>
     <ClInclude Include="ILogger.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncHTTPServer.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleLogger.hpp">
+      <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

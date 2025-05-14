@@ -3,10 +3,21 @@
 
 #include <iostream>
 #include "EventLogger.hpp"
+#include "SyncHTTPServer.hpp"
+#include "ConsoleLogger.hpp"
 
 int main()
 {
-    std::cout << "HTTPS Server starting..." << std::endl;
+	std::shared_ptr<ConsoleLogger> logger = std::make_shared<ConsoleLogger>();
+
+	logger->critical("HTTPS Server starting...");
+	std::shared_ptr<IServer> pServer = std::make_shared<SyncHTTPServer>();
+
+	pServer->start();
+
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+
+	logger->critical("HTTPS Server stopped.");
 }
 
 // Executar programa: Ctrl + F5 ou Menu Depurar > Iniciar Sem Depuração
