@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -106,6 +112,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)common;$(SolutionDir)server\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,18 +138,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AsyncHTTPServer.cpp" />
-    <ClCompile Include="Core\EventLogger.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="SyncHTTPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleLogger.hpp" />
-    <ClInclude Include="Core\EventLogger.hpp" />
+    <ClInclude Include="Core\IClientConnectionRepository.hpp" />
+    <ClInclude Include="Core\IClientRepository.hpp" />
     <ClInclude Include="Core\IDatabase.hpp" />
-    <ClInclude Include="ILogger.hpp" />
-    <ClInclude Include="IServer.hpp" />
+    <ClInclude Include="Core\IEventRepository.hpp" />
+    <ClInclude Include="Core\ILogger.hpp" />
+    <ClInclude Include="Core\IServer.hpp" />
+    <ClInclude Include="SqliteDatabase.hpp" />
     <ClInclude Include="SyncHTTPServer.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\sqlite\sqlite.vcxproj">
+      <Project>{8aa09303-ea7d-4c1c-bf80-cf9f3ccb27a0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
