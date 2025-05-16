@@ -27,15 +27,15 @@ void SyncHTTPServer::start()
 					}
 					catch (...)
 					{
-						std::cerr << "Error accepting connection." << std::endl;
+						m_logger->error("Error accepting connection.");
 					}
 				}
-				std::cout << "Server stopped accepting connections." << std::endl;
+				m_logger->info("Server stopped accepting connections.");
 			});
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "Error starting server: " << e.what() << std::endl;
+		m_logger->error("Error starting server: {}", e.what());
 	}
 }
 
@@ -57,7 +57,7 @@ void SyncHTTPServer::stop()
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "Error stopping server: " << e.what() << std::endl;
+		m_logger->error("Error stopping server: {}", e.what());
 	}
 }
 
@@ -70,7 +70,7 @@ void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 		std::istream request_stream(&buffer);
 		std::string request_line;
 		std::getline(request_stream, request_line);
-		std::cout << "Received request from (" << socket.remote_endpoint().address().to_string() << ") : " << request_line << std::endl;
+		m_logger->info("Received request from ({}) : [{}]", socket.remote_endpoint().address().to_string(), request_line);
 
 		std::string response =
 			"HTTP/1.1 200 OK\r\n"
@@ -81,7 +81,8 @@ void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 
 		asio::write(socket, asio::buffer(response));
 	}
-	catch (std::exception& e) {
-		std::cerr << "Error handling client: " << e.what() << std::endl;
+	catch (std::exception& e) 
+	{
+		m_logger->error("Error handling client : {}", e.what());
 	}
 }

@@ -8,9 +8,9 @@ namespace sql
    {
 
       inline constexpr std::string_view create_table = R"sql(
-         CREATE TABLE client (
+         CREATE TABLE IF NOT EXISTS client (
          id INTEGER PRIMARY KEY,
-         ip INTEGER NOT NULL,
+         ip INTEGER NOT NULL UNIQUE,
          connection_count INTEGER DEFAULT 0,
          event_count INTEGER DEFAULT 0,
          created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
@@ -57,7 +57,7 @@ namespace sql
    namespace client_connection
    {
       inline constexpr std::string_view query_create_table = R"sql(
-         CREATE TABLE ClientConnection (
+         CREATE TABLE IF NOT EXISTS ClientConnection (
          id INTEGER PRIMARY KEY,
          client_id INTEGER NOT NULL,
          connection_timestamp INTEGER NOT NULL DEFAULT (strftime('%s','now')),
@@ -69,7 +69,7 @@ namespace sql
    namespace event
    {
       inline constexpr std::string_view query_create_table = R"sql(
-         CREATE TABLE Event (
+         CREATE TABLE IF NOT EXISTS Event (
          id INTEGER PRIMARY KEY,
          client_id INTEGER NOT NULL,
          connection_id INTEGER NOT NULL,
