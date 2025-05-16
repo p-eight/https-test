@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp" />
+    <ClCompile Include="SqliteDatabase.cpp" />
     <ClCompile Include="SyncHTTPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="Core\ILogger.hpp" />
     <ClInclude Include="Core\IServer.hpp" />
     <ClInclude Include="SqliteDatabase.hpp" />
+    <ClInclude Include="sql_queries.hpp" />
     <ClInclude Include="SyncHTTPServer.hpp" />
   </ItemGroup>
   <ItemGroup>

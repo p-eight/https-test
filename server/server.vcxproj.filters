@@ -13,16 +13,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\EventLogger.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="server.cpp">
       <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="SyncHTTPServer.cpp">
       <Filter>app</Filter>
     </ClCompile>
-    <ClCompile Include="AsyncHTTPServer.cpp">
+    <ClCompile Include="SqliteDatabase.cpp">
       <Filter>app</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,19 +27,31 @@
     <ClInclude Include="Core\IDatabase.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\EventLogger.hpp">
+    <ClInclude Include="ConsoleLogger.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ILogger.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="IServer.hpp">
+    <ClInclude Include="Core\IServer.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="ILogger.hpp">
+    <ClInclude Include="Core\IClientRepository.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IEventRepository.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IClientConnectionRepository.hpp">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="SyncHTTPServer.hpp">
       <Filter>app</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleLogger.hpp">
+    <ClInclude Include="SqliteDatabase.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="sql_queries.hpp">
       <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
