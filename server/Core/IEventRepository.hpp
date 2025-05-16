@@ -19,6 +19,5 @@ public:
 	virtual bool remove_event(int event_id) = 0;
 	virtual bool remove_all_events() = 0;
 	virtual bool remove_events_by_client(int client_id) = 0;
-
 	virtual std::vector<Event> get_events_by_client(int client_id) = 0;
 };

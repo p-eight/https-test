@@ -2,6 +2,7 @@
 
 class IClientConnectionRepository
 {
+public:
 	struct ClientConnection
 	{
 		int id;
