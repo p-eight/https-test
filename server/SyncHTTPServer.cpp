@@ -1,5 +1,7 @@
 #include "SyncHTTPServer.hpp"
 #include <iostream>
+#include "RequestFactory.hpp"
+
 
 void SyncHTTPServer::start()
 {
@@ -61,17 +63,64 @@ void SyncHTTPServer::stop()
 	}
 }
 
+static std::string read_full_request(asio::ip::tcp::socket& socket)
+{
+	asio::streambuf buffer;
+
+	// Read headers
+	asio::read_until(socket, buffer, "\r\n\r\n");
+
+	std::istream request_stream(&buffer);
+	std::string line;
+	std::ostringstream request_data;
+
+	// Read header lines
+	while (std::getline(request_stream, line) && line != "\r") {
+		request_data << line << "\n";
+	}
+	request_data << "\r\n"; // final empty line
+
+	// Parse headers to find Content-Length
+	std::string headers = request_data.str();
+	std::istringstream header_stream(headers);
+	size_t content_length = 0;
+
+	while (std::getline(header_stream, line)) {
+		auto pos = line.find(':');
+		if (pos != std::string::npos) {
+			std::string key = line.substr(0, pos);
+			std::string value = line.substr(pos + 1);
+			// Remove possible leading/trailing whitespace
+			key.erase(0, key.find_first_not_of(" \t"));
+			key.erase(key.find_last_not_of(" \t\r\n") + 1);
+			value.erase(0, value.find_first_not_of(" \t"));
+			value.erase(value.find_last_not_of(" \t\r\n") + 1);
+
+			if (key == "Content-Length") {
+				content_length = std::stoul(value);
+				break;
+			}
+		}
+	}
+
+	// Read body if necessary
+	if (content_length > 0) {
+		std::vector<char> body_buf(content_length);
+		asio::read(socket, asio::buffer(body_buf));
+		request_data.write(body_buf.data(), content_length);
+	}
+
+	return request_data.str();
+}
+
+
 void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 {
 	try {
-		asio::streambuf buffer;
-		asio::read_until(socket, buffer, "\r\n\r\n"); // Read HTTP header
+		std::string raw_request = read_full_request(socket);
 
-		std::istream request_stream(&buffer);
-		std::string request_line;
-		std::getline(request_stream, request_line);
-		m_logger->info("Received request from ({}) : [{}]", socket.remote_endpoint().address().to_string(), request_line);
-
+        auto request = RequestFactory::parse(raw_request);
+        
 		std::string response =
 			"HTTP/1.1 200 OK\r\n"
 			"Content-Length: 13\r\n"

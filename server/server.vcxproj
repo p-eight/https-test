@@ -138,18 +138,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HttpRequest.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="SqliteDatabase.cpp" />
     <ClCompile Include="SyncHTTPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandRequest.hpp" />
     <ClInclude Include="ConsoleLogger.hpp" />
     <ClInclude Include="Core\IClientConnectionRepository.hpp" />
     <ClInclude Include="Core\IClientRepository.hpp" />
     <ClInclude Include="Core\IDatabase.hpp" />
     <ClInclude Include="Core\IEventRepository.hpp" />
     <ClInclude Include="Core\ILogger.hpp" />
+    <ClInclude Include="Core\IRequest.hpp" />
     <ClInclude Include="Core\IServer.hpp" />
+    <ClInclude Include="HttpRequest.hpp" />
+    <ClInclude Include="RequestFactory.hpp" />
     <ClInclude Include="SqliteDatabase.hpp" />
     <ClInclude Include="sql_queries.hpp" />
     <ClInclude Include="SyncHTTPServer.hpp" />

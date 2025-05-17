@@ -10,10 +10,10 @@
     <ClCompile Include="test.cpp">
       <Filter>gtest_sources</Filter>
     </ClCompile>
-    <ClCompile Include="EventLoggerTests.cpp">
+    <ClCompile Include="HttpRequestTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\server\Core\EventLogger.cpp">
+    <ClCompile Include="..\..\server\HttpRequest.cpp">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -27,6 +27,9 @@
     <Filter Include="sources">
       <UniqueIdentifier>{71795e29-77db-408d-aa26-b616736164e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{a45822f4-4e57-45a2-9826-3d4138048d9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -34,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="MockDatabase.hpp">
       <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\HttpRequest.hpp">
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

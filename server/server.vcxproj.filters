@@ -22,6 +22,9 @@
     <ClCompile Include="SqliteDatabase.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="HttpRequest.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\IDatabase.hpp">
@@ -52,6 +55,18 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="sql_queries.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IRequest.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandRequest.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpRequest.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestFactory.hpp">
       <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>

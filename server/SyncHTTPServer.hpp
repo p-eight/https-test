@@ -4,7 +4,8 @@
 #include "ILogger.hpp"
 #include "IClientRepository.hpp"
 
-class SyncHTTPServer : public IServer {
+class SyncHTTPServer : public IServer 
+{
 public:
 	SyncHTTPServer(std::shared_ptr<ILogger> _logger, std::shared_ptr<IClientRepository> _client_repo) : acceptor_(io_context_), m_logger(_logger), m_client_repo(_client_repo) 
    {
