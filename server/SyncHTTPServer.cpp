@@ -1,6 +1,7 @@
 #include "SyncHTTPServer.hpp"
 #include <iostream>
 #include "RequestFactory.hpp"
+#include "HttpResponse.hpp"
 
 
 void SyncHTTPServer::start()
@@ -11,6 +12,7 @@ void SyncHTTPServer::start()
 	}
 	try
 	{
+		
 		asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), m_config.port);
 		acceptor_.open(endpoint.protocol());
 		acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
@@ -25,11 +27,30 @@ void SyncHTTPServer::start()
 					{ 
 						asio::ip::tcp::socket socket(io_context_);
 						acceptor_.accept(socket);
-						handle_client(socket);
+						if (m_server_running)
+						{
+							handle_client(socket);
+						}
+						else
+						{
+							break;
+						}
 					}
-					catch (...)
+					catch (const asio::system_error& e)
 					{
-						m_logger->error("Error accepting connection.");
+						if (e.code() == asio::error::operation_aborted)
+						{
+							// Expected when acceptor is closed
+							m_logger->info("Accept operation cancelled");
+						}
+						else
+						{
+							m_logger->error("Error accepting connection: {}", e.what());
+						}
+					}
+					catch (const std::exception& e)
+					{
+						m_logger->error("Error accepting connection : {}", e.what());
 					}
 				}
 				m_logger->info("Server stopped accepting connections.");
@@ -50,7 +71,12 @@ void SyncHTTPServer::stop()
 	try
 	{
 		m_server_running = false;
-		acceptor_.close();
+		asio::error_code ec;
+		acceptor_.close(ec);
+		if (ec) 
+		{
+			m_logger->error("Error closing acceptor: {}", ec.message());
+		}
 		io_context_.stop();
 		if (m_WaitConnection_thread.joinable())
 		{
@@ -67,20 +93,20 @@ static std::string read_full_request(asio::ip::tcp::socket& socket)
 {
 	asio::streambuf buffer;
 
-	// Read headers
+	// Step 1: Read headers
 	asio::read_until(socket, buffer, "\r\n\r\n");
 
 	std::istream request_stream(&buffer);
 	std::string line;
 	std::ostringstream request_data;
 
-	// Read header lines
+	// Read headers into request_data
 	while (std::getline(request_stream, line) && line != "\r") {
 		request_data << line << "\n";
 	}
-	request_data << "\r\n"; // final empty line
+	request_data << "\r\n"; // End of headers
 
-	// Parse headers to find Content-Length
+	// Step 2: Parse headers to find Content-Length
 	std::string headers = request_data.str();
 	std::istringstream header_stream(headers);
 	size_t content_length = 0;
@@ -90,7 +116,6 @@ static std::string read_full_request(asio::ip::tcp::socket& socket)
 		if (pos != std::string::npos) {
 			std::string key = line.substr(0, pos);
 			std::string value = line.substr(pos + 1);
-			// Remove possible leading/trailing whitespace
 			key.erase(0, key.find_first_not_of(" \t"));
 			key.erase(key.find_last_not_of(" \t\r\n") + 1);
 			value.erase(0, value.find_first_not_of(" \t"));
@@ -103,11 +128,25 @@ static std::string read_full_request(asio::ip::tcp::socket& socket)
 		}
 	}
 
-	// Read body if necessary
+	// Step 3: Check how much of the body is already in the buffer
+	size_t already_buffered = buffer.size();
+
+	std::string body;
 	if (content_length > 0) {
-		std::vector<char> body_buf(content_length);
-		asio::read(socket, asio::buffer(body_buf));
-		request_data.write(body_buf.data(), content_length);
+		// Read already-buffered part
+		std::vector<char> temp(already_buffered);
+		request_stream.read(temp.data(), already_buffered);
+		body.append(temp.data(), request_stream.gcount());
+
+		// Read the remaining body from socket (if any)
+		size_t remaining = content_length > body.size() ? content_length - body.size() : 0;
+		if (remaining > 0) {
+			std::vector<char> body_buf(remaining);
+			asio::read(socket, asio::buffer(body_buf));
+			body.append(body_buf.data(), remaining);
+		}
+
+		request_data << body;
 	}
 
 	return request_data.str();
@@ -117,18 +156,14 @@ static std::string read_full_request(asio::ip::tcp::socket& socket)
 void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 {
 	try {
+		
 		std::string raw_request = read_full_request(socket);
 
         auto request = RequestFactory::parse(raw_request);
         
-		std::string response =
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Length: 13\r\n"
-			"Connection: close\r\n"
-			"\r\n"
-			"Hello, world!";
+        auto res = m_req_handler->handleRequest(*request);
 
-		asio::write(socket, asio::buffer(response));
+		asio::write(socket, asio::buffer(res->str()));
 	}
 	catch (std::exception& e) 
 	{

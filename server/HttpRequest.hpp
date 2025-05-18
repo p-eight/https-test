@@ -2,6 +2,9 @@
 #include "Core/IRequest.hpp"
 #include <unordered_map>
 #include <string_view>
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 class HttpRequest : public IRequest
 {
@@ -37,9 +40,19 @@ private:
     std::string m_method;
     std::string m_path;
     std::string m_body;
+    json m_jsonBody;
     std::string m_httpVersion; 
     std::unordered_map<std::string, std::string> m_headers;
     std::unordered_map<std::string, std::string> m_queryParams;
+    // Helper for multipart parsing
+    struct FormPart {
+        std::unordered_map<std::string, std::string> headers;
+        std::string content;
+    };
 
     void parseHttp(const std::string_view raw);
+    void parseBody(const std::string_view body_data);
+    void parseUrlEncodedForm(const std::string& form_data);
+    void parseMultipartForm(const std::string& body, const std::string& boundary);
+    static std::string urlDecode(const std::string& str);
 };

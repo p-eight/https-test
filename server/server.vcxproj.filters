@@ -69,5 +69,14 @@
     <ClInclude Include="RequestFactory.hpp">
       <Filter>app</Filter>
     </ClInclude>
+    <ClInclude Include="Core\IRequestHandler.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpResponse.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestRouter.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
