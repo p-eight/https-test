@@ -1,8 +1,8 @@
 #pragma once
-#include "Core/IRequest.hpp"
 #include <unordered_map>
 #include <string_view>
 #include "nlohmann/json.hpp"
+#include "Core/IRequest.hpp"
 
 using json = nlohmann::json;
 
@@ -51,8 +51,4 @@ private:
     };
 
     void parseHttp(const std::string_view raw);
-    void parseBody(const std::string_view body_data);
-    void parseUrlEncodedForm(const std::string& form_data);
-    void parseMultipartForm(const std::string& body, const std::string& boundary);
-    static std::string urlDecode(const std::string& str);
 };
