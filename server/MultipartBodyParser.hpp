@@ -5,6 +5,7 @@
 #include <string_view>
 #include <chrono>
 #include <iostream>
+
 class MultipartBodyParser : public IBodyParser
 {
 public:
@@ -85,20 +86,35 @@ private:
         std::string_view body = part.substr(header_end + 4);
 
         std::string name;
+        std::string filename;
         size_t cd_pos = headers.find("Content-Disposition:");
-        if (cd_pos != std::string_view::npos) {
+        if (cd_pos != std::string_view::npos)
+        {
             size_t name_pos = headers.find("name=\"", cd_pos);
-            if (name_pos != std::string_view::npos) {
+            if (name_pos != std::string_view::npos)
+            {
                 name_pos += 6;
                 size_t end_quote = headers.find('"', name_pos);
-                if (end_quote != std::string_view::npos) {
+                if (end_quote != std::string_view::npos)
+                {
                     name = std::string(headers.substr(name_pos, end_quote - name_pos));
+                }
+            }
+
+            size_t filename_pos = headers.find("filename=\"", cd_pos);
+            if (filename_pos != std::string_view::npos)
+            {
+                filename_pos += 10;
+                size_t end_quote = headers.find('"', filename_pos);
+                if (end_quote != std::string_view::npos)
+                {
+                    filename = std::string(headers.substr(filename_pos, end_quote - filename_pos));
                 }
             }
         }
 
-        if (!name.empty()) {
-            // Save body view — make sure m_rawBody owns the data
+        if (!name.empty()) 
+        {
             size_t offset = body.data() - raw_body.data();
             m_parts[name] = std::string_view(raw_body).substr(offset, body.size());
         }

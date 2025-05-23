@@ -11,6 +11,9 @@
     <Filter Include="app">
       <UniqueIdentifier>{d291f008-954a-41f9-b311-17e1cc018f94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app\Libs">
+      <UniqueIdentifier>{5f5b0565-39e5-4303-b0c8-270080368984}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
@@ -24,6 +27,9 @@
     </ClCompile>
     <ClCompile Include="HttpRequest.cpp">
       <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="simdjson.cpp">
+      <Filter>app\Libs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +83,15 @@
     </ClInclude>
     <ClInclude Include="RequestRouter.hpp">
       <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IBodyParser.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="MultipartBodyParser.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="simdjson.h">
+      <Filter>app\Libs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
