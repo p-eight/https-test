@@ -20,8 +20,8 @@ int main()
 	std::shared_ptr<IDatabase> db = std::make_shared<SqliteDatabase>(logger);
 	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db);
 	std::shared_ptr<IRequestHandler> helloHandler = std::make_shared<HelloHandler>();
-	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>());
-    std::shared_ptr<RequestRouter> router = std::make_shared<RequestRouter>();
+	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>(), logger);
+    std::shared_ptr<RequestRouter> router = std::make_shared<RequestRouter>(logger);
 
 	router->registerHandler("GET", "/hello", helloHandler);
 	router->registerHandler("POST", "/users", userHandler);

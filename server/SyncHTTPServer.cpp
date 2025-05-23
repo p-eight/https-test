@@ -29,6 +29,7 @@ void SyncHTTPServer::start()
 						acceptor_.accept(socket);
 						if (m_server_running)
 						{
+                            m_logger->info("[" __FUNCTION__ "] Accepted connection from {}", socket.remote_endpoint().address().to_string());
 							handle_client(socket);
 						}
 						else
@@ -41,24 +42,24 @@ void SyncHTTPServer::start()
 						if (e.code() == asio::error::operation_aborted)
 						{
 							// Expected when acceptor is closed
-							m_logger->info("Accept operation cancelled");
+							m_logger->info("[" __FUNCTION__ "] Accept operation cancelled");
 						}
 						else
 						{
-							m_logger->error("Error accepting connection: {}", e.what());
+							m_logger->error("[" __FUNCTION__ "] Error accepting connection: {}", e.what());
 						}
 					}
 					catch (const std::exception& e)
 					{
-						m_logger->error("Error accepting connection : {}", e.what());
+						m_logger->error("[" __FUNCTION__ "] Error accepting connection : {}", e.what());
 					}
 				}
-				m_logger->info("Server stopped accepting connections.");
+				m_logger->info("[" __FUNCTION__ "] Server stopped accepting connections.");
 			});
 	}
 	catch (const std::exception& e)
 	{
-		m_logger->error("Error starting server: {}", e.what());
+		m_logger->error("[" __FUNCTION__ "] Error starting server: {}", e.what());
 	}
 }
 
@@ -75,7 +76,7 @@ void SyncHTTPServer::stop()
 		acceptor_.close(ec);
 		if (ec) 
 		{
-			m_logger->error("Error closing acceptor: {}", ec.message());
+			m_logger->error("[" __FUNCTION__ "] Error closing acceptor: {}", ec.message());
 		}
 		io_context_.stop();
 		if (m_WaitConnection_thread.joinable())
@@ -85,7 +86,7 @@ void SyncHTTPServer::stop()
 	}
 	catch (const std::exception& e)
 	{
-		m_logger->error("Error stopping server: {}", e.what());
+		m_logger->error("[" __FUNCTION__ "] Error stopping server: {}", e.what());
 	}
 }
 
@@ -156,17 +157,32 @@ static std::string read_full_request(asio::ip::tcp::socket& socket)
 void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 {
 	try {
-		
+        auto start = std::chrono::high_resolution_clock::now();
 		std::string raw_request = read_full_request(socket);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        m_logger->info("[" __FUNCTION__ "] Read request in {} ms", duration.count());
+
+		start = std::chrono::high_resolution_clock::now();
 
         auto request = RequestFactory::parse(raw_request);
-        
+		
+		end = std::chrono::high_resolution_clock::now(); 		
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		m_logger->info("[" __FUNCTION__ "] Request parsed in {} ms", duration.count());
+
+		start = std::chrono::high_resolution_clock::now();
+
         auto res = m_req_handler->handleRequest(*request);
+
+		end = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		m_logger->info("[" __FUNCTION__ "] Request handled in {} ms", duration.count());
 
 		asio::write(socket, asio::buffer(res->str()));
 	}
 	catch (std::exception& e) 
 	{
-		m_logger->error("Error handling client : {}", e.what());
+		m_logger->error("[" __FUNCTION__ "] Error handling client : {}", e.what());
 	}
 }

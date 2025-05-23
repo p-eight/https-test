@@ -48,7 +48,6 @@ public:
             pos = end;
         }
         auto end = std::chrono::high_resolution_clock::now();
-        std::cout << "Parsing took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
         return !m_parts.empty();
     };
 

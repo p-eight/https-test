@@ -8,6 +8,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include "ILogger.hpp"
 
 using json = nlohmann::json;
 
@@ -47,7 +48,7 @@ public:
 class UserHandler : public IRequestHandler
 {
 public:
-	UserHandler(std::shared_ptr<IBodyParser> _bodyParser) : m_bodyParser(_bodyParser) {};
+	UserHandler(std::shared_ptr<IBodyParser> _bodyParser, std::shared_ptr<ILogger> _logger) : m_bodyParser(_bodyParser), m_logger(_logger) {};
 	std::unique_ptr<IResponse> handleRequest(const IRequest& request) override {
 		std::unique_ptr<IResponse> response;
 		auto start = std::chrono::high_resolution_clock::now();
@@ -76,10 +77,12 @@ public:
 		}
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        m_logger->info("[" __FUNCTION__ "] Handled \'{}\' \'{}\' in {} ms", request.method(), request.uri(), duration.count());
 		return response;
 	}
 private:
-    std::shared_ptr<IBodyParser> m_bodyParser; 	
+    std::shared_ptr<IBodyParser> m_bodyParser;
+	std::shared_ptr<ILogger> m_logger;
     std::vector<UserInfo::User> users;
 	
 	HttpResponse handlePOSTUsers(const IRequest& request) 
@@ -108,12 +111,8 @@ private:
         }
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		std::cout << "Parsed users in "
-			<< duration.count()
-			<< "ms\n";
-
-        setDefaultBody(responseJson, duration);
-		
+		m_logger->info("[" __FUNCTION__ "] Parsed users in {} ms", duration.count());
+        setDefaultBody(responseJson, duration);		
 		res.setBody(responseJson.dump());
 		return res;
 	}
@@ -278,7 +277,7 @@ private:
 		auto error = doc.get<std::vector<UserInfo::User>>(users);
 		if (error)
 		{
-            std::cerr << "Error parsing JSON: " << simdjson::error_message(error) << std::endl;
+            m_logger->error("[" __FUNCTION__ "] Error parsing JSON: {}", simdjson::error_message(error));
 		}
 		else
 		{
@@ -286,9 +285,7 @@ private:
 		}
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Parsed " << users.size() << " users in "
-            << duration.count()
-            << "ms\n";
+        m_logger->info("[" __FUNCTION__ "] parsed {} in {} ms", users.size(), duration.count());
 		return result;
     }
 
