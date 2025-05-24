@@ -150,10 +150,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandRequest.hpp" />
+    <ClInclude Include="Configurations\ConfigFactory.hpp" />
+    <ClInclude Include="Configurations\JSONConfig.hpp" />
+    <ClInclude Include="Configurations\XMLConfig.hpp" />
     <ClInclude Include="ConsoleLogger.hpp" />
     <ClInclude Include="Core\IBodyParser.hpp" />
     <ClInclude Include="Core\IClientConnectionRepository.hpp" />
     <ClInclude Include="Core\IClientRepository.hpp" />
+    <ClInclude Include="Core\IConfig.hpp" />
     <ClInclude Include="Core\IDatabase.hpp" />
     <ClInclude Include="Core\IEventRepository.hpp" />
     <ClInclude Include="Core\ILogger.hpp" />
@@ -164,8 +168,10 @@
     <ClInclude Include="HttpResponse.hpp" />
     <ClInclude Include="MultipartBodyParser.hpp" />
     <ClInclude Include="RequestFactory.hpp" />
+    <ClInclude Include="RequestHandlers.hpp" />
     <ClInclude Include="RequestRouter.hpp" />
     <ClInclude Include="simdjson.h" />
+    <ClInclude Include="spdlogger.hpp" />
     <ClInclude Include="SqliteDatabase.hpp" />
     <ClInclude Include="sql_queries.hpp" />
     <ClInclude Include="SyncHTTPServer.hpp" />

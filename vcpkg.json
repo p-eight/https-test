@@ -4,7 +4,8 @@
   "builtin-baseline": "ce613c41372b23b1f51333815feb3edd87ef8a8b",
   "dependencies": [
     "fmt",
-    "nlohmann-json"
+    "nlohmann-json",
+    "spdlog"
   ],
   "overrides": [
     {
@@ -14,6 +15,10 @@
     {
       "name": "nlohmann-json",
       "version": "3.11.3"  
+    },
+    {
+      "name": "spdlog",
+      "version": "1.15.2"  
     }
   ]
 }

@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include "ILogger.hpp"
+#include <future> // for std::async
 
 using json = nlohmann::json;
 
@@ -45,12 +46,29 @@ public:
 	}
 };
 
+class DefaultHandler : public IRequestHandler
+{
+public:
+	std::unique_ptr<IResponse> handleRequest(const IRequest& request) override
+	{
+        auto res = std::make_unique<HttpResponse>();
+        res->setStatusCode(404); // Not Found
+        res->sethttpVersion(request.httpVersion());
+        res->setHeader("Connection", "Keep-Alive");
+        json responseJson;
+        responseJson["message"] = "Resource not found";
+        responseJson["timestamp"] = get_current_utc_timestamp();
+        res->setBody(responseJson.dump());
+        return res;
+	}
+};
+
 class UserHandler : public IRequestHandler
 {
 public:
 	UserHandler(std::shared_ptr<IBodyParser> _bodyParser, std::shared_ptr<ILogger> _logger) : m_bodyParser(_bodyParser), m_logger(_logger) {};
 	std::unique_ptr<IResponse> handleRequest(const IRequest& request) override {
-		std::unique_ptr<IResponse> response;
+		std::unique_ptr<HttpResponse> response;
 		auto start = std::chrono::high_resolution_clock::now();
 		if (request.method() == "POST" && request.uri() == "/users") {
 			response= std::make_unique < HttpResponse>(handlePOSTUsers(request));
@@ -61,20 +79,25 @@ public:
         }
         else if (request.method() == "GET" && request.uri() == "/top-countries")
         {
-            response = std::make_unique < HttpResponse>(handleGetTopCountries(request));
+            response = std::make_unique < HttpResponse>(handleGetTopCountries());
         }
         else if (request.method() == "GET" && request.uri() == "/team-insights")
         {
-            response = std::make_unique < HttpResponse>(handleGetTeamInsights(request));
+            response = std::make_unique < HttpResponse>(handleGetTeamInsights());
         }
 		else if (request.method() == "GET" && request.uri() == "/active-users-per-day")
 		{
-			response = std::make_unique < HttpResponse>(handleGetActiveUsers(request));
-		}
+			response = std::make_unique < HttpResponse>(handleGetActiveUsers());
+        }
+        else if (request.method() == "GET" && request.uri() == "/evaluation")
+        {
+            response = std::make_unique < HttpResponse>(handleGetEvaluation());
+        }
 		else {
 			response = std::make_unique<HttpResponse>();
-			response->setStatusCode(405); // Method Not Allowed			
+			response->setStatusCode(405); // Method Not Allowed			 
 		}
+        response->sethttpVersion(request.httpVersion());
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         m_logger->info("[" __FUNCTION__ "] Handled \'{}\' \'{}\' in {} ms", request.method(), request.uri(), duration.count());
@@ -142,12 +165,11 @@ private:
         return res;
 	}
 	
-	HttpResponse handleGetTopCountries(const IRequest& request)
+	HttpResponse handleGetTopCountries()
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		HttpResponse res;
 		res.setStatusCode(200); // default to bad request
-		res.sethttpVersion(request.httpVersion());
 		json responseJson;
 
         std::unordered_map<std::string, int> country_count_map;
@@ -175,12 +197,11 @@ private:
 		return res;
 	}
 
-	HttpResponse handleGetTeamInsights(const IRequest& request)
+	HttpResponse handleGetTeamInsights()
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		HttpResponse res;
 		res.setStatusCode(200);
-		res.sethttpVersion("HTTP/1.1");
 		res.setHeader("Content-Type", "application/json"); 
 		json responseJson;
 
@@ -232,12 +253,11 @@ private:
 		return res;
 	}
 
-	HttpResponse handleGetActiveUsers(const IRequest& request)
+	HttpResponse handleGetActiveUsers()
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		HttpResponse res;
 		res.setStatusCode(200);
-		res.sethttpVersion("HTTP/1.1");
 		res.setHeader("Content-Type", "application/json");
 		json responseJson;
 
@@ -267,7 +287,54 @@ private:
 		res.setBody(responseJson.dump());
 		return res;
 	}
-    bool parseUsers(std::string_view json_str)
+    
+	HttpResponse handleGetEvaluation()
+	{
+		auto start = std::chrono::high_resolution_clock::now();
+		HttpResponse res;
+		res.setStatusCode(200);
+		res.setHeader("Content-Type", "application/json");
+		json responseJson;
+		
+		auto test_endpoint = [&](std::string_view endpoint, HttpResponse response) -> json
+			{
+				json item;
+				item[endpoint]["status"] = HttpStatus::Unauthorized;
+				try
+				{
+					item[endpoint]["status"] = response.getCode();
+					json body = json::parse(response.getBody());
+					item[endpoint]["time_ms"] = body["execution_time_ms"];
+					item[endpoint]["valid_response"] = true;
+				}
+                catch (const std::exception& e)
+                {
+                    item[endpoint]["valid_response"] = false;
+                    item[endpoint]["error"] = e.what();
+                }
+
+				return item;
+			};
+
+		std::vector<std::future<json>> futures;
+		futures.push_back(std::async(std::launch::async, [&]() { return test_endpoint("/team-insights", handleGetTeamInsights()); }));
+		futures.push_back(std::async(std::launch::async, [&]() { return test_endpoint("/superusers", handleGETSuperusers()); }));
+		futures.push_back(std::async(std::launch::async, [&]() { return test_endpoint("/top-countries", handleGetTopCountries()); }));
+		futures.push_back(std::async(std::launch::async, [&]() { return test_endpoint("/active-users-per-day", handleGetActiveUsers()); }));
+
+		for (auto& fut : futures)
+		{
+			responseJson["tested_endpoints"].push_back(fut.get());
+		}		
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		setDefaultBody(responseJson, duration);
+		res.setBody(responseJson.dump());
+		return res;
+	}
+
+	bool parseUsers(std::string_view json_str)
     {
 		bool result = false;
         auto start = std::chrono::high_resolution_clock::now();

@@ -68,5 +68,5 @@ private:
    std::shared_ptr<IClientRepository> m_client_repo;
    std::shared_ptr<IRequestHandler> m_req_handler;
 
-	void handle_client(asio::ip::tcp::socket& socket);
+	void handle_client(asio::ip::tcp::socket& socket, asio::streambuf& asio_buffer, std::ostringstream& request_data);
 };

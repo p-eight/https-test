@@ -21,16 +21,20 @@ void SyncHTTPServer::start()
 		m_server_running = true;
 		m_WaitConnection_thread = std::thread([&]()
 			{
+				asio::streambuf asio_buffer;
+				std::ostringstream data;
 				while (m_server_running)
 				{
 					try
 					{ 
-						asio::ip::tcp::socket socket(io_context_);
+						asio::ip::tcp::socket socket(io_context_); 
+						asio::ip::tcp::no_delay option(true);
+						//socket.set_option(option);
 						acceptor_.accept(socket);
 						if (m_server_running)
 						{
-                            m_logger->info("[" __FUNCTION__ "] Accepted connection from {}", socket.remote_endpoint().address().to_string());
-							handle_client(socket);
+                            m_logger->info("[Conn Thread] Accepted connection from {}", socket.remote_endpoint().address().to_string());
+							handle_client(socket, asio_buffer, data);
 						}
 						else
 						{
@@ -42,19 +46,19 @@ void SyncHTTPServer::start()
 						if (e.code() == asio::error::operation_aborted)
 						{
 							// Expected when acceptor is closed
-							m_logger->info("[" __FUNCTION__ "] Accept operation cancelled");
+							m_logger->info("[Conn Thread] Accept operation cancelled");
 						}
 						else
 						{
-							m_logger->error("[" __FUNCTION__ "] Error accepting connection: {}", e.what());
+							m_logger->error("[Conn Thread] Error accepting connection: {}", e.what());
 						}
 					}
 					catch (const std::exception& e)
 					{
-						m_logger->error("[" __FUNCTION__ "] Error accepting connection : {}", e.what());
+						m_logger->error("[Conn Thread] Error accepting connection : {}", e.what());
 					}
 				}
-				m_logger->info("[" __FUNCTION__ "] Server stopped accepting connections.");
+				m_logger->info("[Conn Thread] Server stopped accepting connections.");
 			});
 	}
 	catch (const std::exception& e)
@@ -90,82 +94,74 @@ void SyncHTTPServer::stop()
 	}
 }
 
-static std::string read_full_request(asio::ip::tcp::socket& socket)
+static void read_full_request(asio::ip::tcp::socket& socket, asio::streambuf &buffer, std::string& request_data)
 {
-	asio::streambuf buffer;
+	buffer.consume(buffer.size());
+	request_data.clear();
 
-	// Step 1: Read headers
+	// Read headers
 	asio::read_until(socket, buffer, "\r\n\r\n");
 
 	std::istream request_stream(&buffer);
 	std::string line;
-	std::ostringstream request_data;
 
-	// Read headers into request_data
+	// Append headers directly to request_data
+	std::ostringstream header_stream;
 	while (std::getline(request_stream, line) && line != "\r") {
-		request_data << line << "\n";
+		header_stream << line << "\n";
 	}
-	request_data << "\r\n"; // End of headers
+	header_stream << "\r\n";
+	request_data += header_stream.str();
 
 	// Step 2: Parse headers to find Content-Length
-	std::string headers = request_data.str();
-	std::istringstream header_stream(headers);
 	size_t content_length = 0;
 
-	while (std::getline(header_stream, line)) {
-		auto pos = line.find(':');
-		if (pos != std::string::npos) {
-			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 1);
-			key.erase(0, key.find_first_not_of(" \t"));
-			key.erase(key.find_last_not_of(" \t\r\n") + 1);
+	auto pos = request_data.find("Content-Length:");
+	if (pos != std::string::npos) {
+		auto end_of_line = request_data.find('\n', pos);
+		if (end_of_line != std::string::npos) {
+			std::string value = request_data.substr(pos + 15, end_of_line - pos - 15);
+			// Trim whitespace
 			value.erase(0, value.find_first_not_of(" \t"));
 			value.erase(value.find_last_not_of(" \t\r\n") + 1);
-
-			if (key == "Content-Length") {
-				content_length = std::stoul(value);
-				break;
-			}
+			content_length = std::stoul(value);
 		}
 	}
 
 	// Step 3: Check how much of the body is already in the buffer
 	size_t already_buffered = buffer.size();
-
-	std::string body;
 	if (content_length > 0) {
-		// Read already-buffered part
 		std::vector<char> temp(already_buffered);
 		request_stream.read(temp.data(), already_buffered);
-		body.append(temp.data(), request_stream.gcount());
+		request_data.append(temp.data(), request_stream.gcount());
 
-		// Read the remaining body from socket (if any)
-		size_t remaining = content_length > body.size() ? content_length - body.size() : 0;
+		size_t remaining = content_length > (request_data.size() - header_stream.str().size()) ?
+			content_length - (request_data.size() - header_stream.str().size()) : 0;
+
 		if (remaining > 0) {
 			std::vector<char> body_buf(remaining);
 			asio::read(socket, asio::buffer(body_buf));
-			body.append(body_buf.data(), remaining);
+			request_data.append(body_buf.data(), remaining);
 		}
-
-		request_data << body;
 	}
-
-	return request_data.str();
 }
 
 
-void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
+void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket, asio::streambuf& asio_buffer, std::ostringstream& request_data)
 {
 	try {
         auto start = std::chrono::high_resolution_clock::now();
-		std::string raw_request = read_full_request(socket);
+		auto begin = start;
+
+		std::string request_data;
+		read_full_request(socket, asio_buffer, request_data);
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         m_logger->info("[" __FUNCTION__ "] Read request in {} ms", duration.count());
 
 		start = std::chrono::high_resolution_clock::now();
 
-        auto request = RequestFactory::parse(raw_request);
+        auto request = RequestFactory::parse(request_data);
 		
 		end = std::chrono::high_resolution_clock::now(); 		
 		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -179,7 +175,18 @@ void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket)
 		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		m_logger->info("[" __FUNCTION__ "] Request handled in {} ms", duration.count());
 
-		asio::write(socket, asio::buffer(res->str()));
+		if (res)
+		{
+			asio::write(socket, asio::buffer(res->str()));
+		}
+		else
+		{
+			m_logger->error("[" __FUNCTION__ "] Error handling request ");
+		}
+        end = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); 
+		m_logger->info("[" __FUNCTION__ "] Total time: {} ms", duration.count());
+
 	}
 	catch (std::exception& e) 
 	{

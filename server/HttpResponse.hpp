@@ -90,6 +90,16 @@ public:
         m_headers["Content-Length"] = std::to_string(body.size());
     }
 
+    std::string_view getBody()
+    {
+        return m_body;
+    }
+
+    HttpStatus::Code getCode()
+    {
+        return m_statusCode;
+    }
+
     std::string str() const override {
         std::ostringstream oss;
         oss << m_httpVersion << " " << m_statusCode << " " << m_reason << "\r\n";

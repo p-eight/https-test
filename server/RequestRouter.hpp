@@ -20,6 +20,12 @@ public:
         m_routes[{toUpper(method), path}] = std::move(handler);
     }
 
+    void registerDefaultHandler(std::shared_ptr<IRequestHandler> handler)
+    {
+        m_logger->info("[" __FUNCTION__ "] Registering default handler");
+        m_routes[{"*", "*"}] = std::move(handler);
+    }
+
     std::unique_ptr<IResponse> handleRequest(const IRequest& request) override 
     {
         auto start = std::chrono::high_resolution_clock::now();
@@ -32,6 +38,17 @@ public:
             end = std::chrono::high_resolution_clock::now();
             m_logger->info("[" __FUNCTION__ "] Handled \'{}\' \'{}\' in {} ms", request.method(), request.uri(), std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
             return returned;
+        }
+        else
+        {
+            // Check for default handler
+            if (auto itDefault = m_routes.find({ "*", "*" }); itDefault != m_routes.end())
+            {
+                auto returned = itDefault->second->handleRequest(request);
+                end = std::chrono::high_resolution_clock::now();
+                m_logger->info("[" __FUNCTION__ "] Handled default for \'{}\' \'{}\' in {} ms", request.method(), request.uri(), std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+                return returned;
+            }
         }
         m_logger->error("[" __FUNCTION__ "] No handler found for \'{}\' \'{}\'", request.method(), request.uri());
         return nullptr;

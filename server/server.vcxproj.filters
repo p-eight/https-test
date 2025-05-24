@@ -14,6 +14,12 @@
     <Filter Include="app\Libs">
       <UniqueIdentifier>{5f5b0565-39e5-4303-b0c8-270080368984}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app\Configs">
+      <UniqueIdentifier>{90f309bf-8843-4201-9d66-831b6baf4835}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app\Loggers">
+      <UniqueIdentifier>{d26a58f1-6c92-4ea7-9598-580a89d67b5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
@@ -35,9 +41,6 @@
   <ItemGroup>
     <ClInclude Include="Core\IDatabase.hpp">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleLogger.hpp">
-      <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="Core\ILogger.hpp">
       <Filter>Core</Filter>
@@ -92,6 +95,27 @@
     </ClInclude>
     <ClInclude Include="simdjson.h">
       <Filter>app\Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="Configurations\ConfigFactory.hpp">
+      <Filter>app\Configs</Filter>
+    </ClInclude>
+    <ClInclude Include="Configurations\JSONConfig.hpp">
+      <Filter>app\Configs</Filter>
+    </ClInclude>
+    <ClInclude Include="Configurations\XMLConfig.hpp">
+      <Filter>app\Configs</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IConfig.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleLogger.hpp">
+      <Filter>app\Loggers</Filter>
+    </ClInclude>
+    <ClInclude Include="spdlogger.hpp">
+      <Filter>app\Loggers</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestHandlers.hpp">
+      <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

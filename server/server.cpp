@@ -6,7 +6,7 @@
 #include <chrono>
 #include "EventLogger.hpp"
 #include "SyncHTTPServer.hpp"
-#include "ConsoleLogger.hpp"
+#include "spdlogger.hpp"
 #include "SqliteDatabase.hpp"
 #include "HttpResponse.hpp"
 #include "RequestRouter.hpp"
@@ -16,10 +16,11 @@
 
 int main()
 {
-	std::shared_ptr<ILogger> logger = std::make_shared<ConsoleLogger>();
+	std::shared_ptr<ILogger> logger = std::make_shared<SPDLogger>();
 	std::shared_ptr<IDatabase> db = std::make_shared<SqliteDatabase>(logger);
 	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db);
 	std::shared_ptr<IRequestHandler> helloHandler = std::make_shared<HelloHandler>();
+	std::shared_ptr<IRequestHandler> defaultHandler = std::make_shared<DefaultHandler>();
 	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>(), logger);
     std::shared_ptr<RequestRouter> router = std::make_shared<RequestRouter>(logger);
 
@@ -28,7 +29,9 @@ int main()
 	router->registerHandler("GET", "/superusers", userHandler);
 	router->registerHandler("GET", "/top-countries", userHandler);
 	router->registerHandler("GET", "/team-insights", userHandler);
-    router->registerHandler("GET", "/active-users-per-day", userHandler);
+	router->registerHandler("GET", "/active-users-per-day", userHandler);
+	router->registerHandler("GET", "/evaluation", userHandler);
+	router->registerDefaultHandler(defaultHandler);
 
 	db->connect("server.db");
 
