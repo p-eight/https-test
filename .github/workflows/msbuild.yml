@@ -39,6 +39,9 @@ jobs:
     - name: Bootstrap vcpkg
       run: .\vcpkg\bootstrap-vcpkg.bat
 
+    - name: Integrate vcpkg with MSBuild
+      run: .\vcpkg\vcpkg.exe integrate project
+
     - name: Run vcpkg install
       run: .\vcpkg\vcpkg.exe install --triplet x64-windows-release --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}\vcpkg\installed
 
