@@ -43,8 +43,12 @@ jobs:
       run: .\vcpkg\vcpkg.exe install --triplet x64-windows-release --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}\vcpkg\installed
 
 
-    - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
+    #- name: Build
+      #working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+      #run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      run:  msbuild /m  /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:VcpkgRoot="${{ github.workspace }}\vcpkg" /p:VcpkgTriplet="x64-windows-release" ${{ env.SOLUTION_FILE_PATH }}
+
