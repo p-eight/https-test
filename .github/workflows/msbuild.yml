@@ -33,14 +33,15 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
       
-    - name: vcpkg build
-      id: vcpkg
-      uses: johnwason/vcpkg-action@v6
-      with:
-        manifest-dir: ${{ github.workspace }} # Set to directory containing vcpkg.json
-        triplet: x64-windows-release
-        token: ${{ github.token }}
-        github-binarycache: true
+    - name: Clone vcpkg (full clone)
+      run: git clone https://github.com/microsoft/vcpkg.git
+
+    - name: Bootstrap vcpkg
+      run: .\vcpkg\bootstrap-vcpkg.bat
+
+    - name: Run vcpkg install
+      run: .\vcpkg\vcpkg.exe install --triplet x64-windows-release --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}\vcpkg\installed
+
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
