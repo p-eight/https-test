@@ -14,7 +14,7 @@ on:
 env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: https-test.sln
-
+  TRIPLET: x64-windows-static
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -43,7 +43,7 @@ jobs:
       run: .\vcpkg\vcpkg.exe integrate project
 
     - name: Run vcpkg install
-      run: .\vcpkg\vcpkg.exe install --triplet x64-windows-release --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}\vcpkg\installed
+      run: .\vcpkg\vcpkg.exe install --triplet ${{ env.TRIPLET }} --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}\vcpkg_installed\${{ env.TRIPLET }}\\
 
 
     #- name: Build
@@ -53,5 +53,5 @@ jobs:
       #run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build
-      run:  msbuild /m  /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:VcpkgRoot="${{ github.workspace }}\vcpkg" /p:VcpkgTriplet="x64-windows-release" ${{ env.SOLUTION_FILE_PATH }}
+      run:  msbuild /m  /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:VcpkgRoot="${{ github.workspace }}\vcpkg" /p:VcpkgTriplet="${{ env.TRIPLET }}" ${{ env.SOLUTION_FILE_PATH }}
 
