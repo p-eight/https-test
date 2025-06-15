@@ -10,6 +10,7 @@
 #include <iostream>
 #include "ILogger.hpp"
 #include <future> // for std::async
+#include <mutex>
 
 using json = nlohmann::json;
 
@@ -40,7 +41,7 @@ public:
 	std::unique_ptr<IResponse> handleRequest(const IRequest& request) override {
 		auto res = std::make_unique<HttpResponse>();
 		res->setStatusCode(200);
-		res->sethttpVersion(request.httpVersion());
+		res->sethttpVersion(request.getVersion());
 		res->setHeader("Connection", "Keep-Alive");
 		return res;
 	}
@@ -53,7 +54,7 @@ public:
 	{
         auto res = std::make_unique<HttpResponse>();
         res->setStatusCode(404); // Not Found
-        res->sethttpVersion(request.httpVersion());
+        res->sethttpVersion(request.getVersion());
         res->setHeader("Connection", "Keep-Alive");
         json responseJson;
         responseJson["message"] = "Resource not found";
@@ -97,7 +98,7 @@ public:
 			response = std::make_unique<HttpResponse>();
 			response->setStatusCode(405); // Method Not Allowed			 
 		}
-        response->sethttpVersion(request.httpVersion());
+        response->sethttpVersion(request.getVersion());
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         m_logger->info("[" __FUNCTION__ "] Handled \'{}\' \'{}\' in {} ms", request.method(), request.uri(), duration.count());
@@ -107,15 +108,23 @@ private:
     std::shared_ptr<IBodyParser> m_bodyParser;
 	std::shared_ptr<ILogger> m_logger;
     std::vector<UserInfo::User> users;
-	
+	std::mutex m_mutex;
+
 	HttpResponse handlePOSTUsers(const IRequest& request) 
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		HttpResponse res;
 		res.setStatusCode(400); // default to bad request
-		res.sethttpVersion(request.httpVersion());
-		json responseJson;
+		res.sethttpVersion(request.getVersion());
 
+		if (!m_mutex.try_lock())
+		{
+            m_logger->error("[" __FUNCTION__ "] Another request is being processed, please try again later.");
+            res.setBody("{\"message\": \"Another request is being processed, please try again later.\"}");
+            return res;
+		}
+
+		json responseJson;
 		if (m_bodyParser->parse(request.getHeader("Content-Type"), request.body()))
 		{
 			auto user_json_str = m_bodyParser->getValue("users");
@@ -132,6 +141,7 @@ private:
                 responseJson["user_count"] = 0;
 			}
         }
+        m_mutex.unlock();
 		auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		m_logger->info("[" __FUNCTION__ "] Parsed users in {} ms", duration.count());

@@ -13,7 +13,7 @@ public:
     // Core components
     std::string method() const{ return "";};
     std::string uri() const{ return "";};
-    std::string httpVersion() const{ return "";};
+    std::string getVersion() const{ return "";};
 
     // Headers / Body
     std::string getHeader(const std::string& name) const{ return "";};

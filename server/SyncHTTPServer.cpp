@@ -13,11 +13,11 @@ void SyncHTTPServer::start()
 	try
 	{
 		
-		asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), m_config.port);
+		asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), m_serverconfig.port);
 		acceptor_.open(endpoint.protocol());
 		acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 		acceptor_.bind(endpoint);
-		acceptor_.listen(m_config.max_connections);
+		acceptor_.listen(m_serverconfig.max_connections);
 		m_server_running = true;
 		m_WaitConnection_thread = std::thread([&]()
 			{
@@ -150,43 +150,70 @@ static void read_full_request(asio::ip::tcp::socket& socket, asio::streambuf &bu
 void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket, asio::streambuf& asio_buffer, std::ostringstream& request_data)
 {
 	try {
-        auto start = std::chrono::high_resolution_clock::now();
-		auto begin = start;
+		while (m_server_running && !socket.is_open())
+		{
 
-		std::string request_data;
-		read_full_request(socket, asio_buffer, request_data);
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        m_logger->info("[" __FUNCTION__ "] Read request in {} ms", duration.count());
+			auto start = std::chrono::high_resolution_clock::now();
+			auto begin = start;
 
-		start = std::chrono::high_resolution_clock::now();
+			std::string request_data;
+			read_full_request(socket, asio_buffer, request_data);
+			auto end = std::chrono::high_resolution_clock::now();
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			m_logger->info("[" __FUNCTION__ "] Read request in {} ms", duration.count());
 
-        auto request = RequestFactory::parse(request_data);
+			start = std::chrono::high_resolution_clock::now();
+
+			auto request = RequestFactory::parse(request_data);
 		
-		end = std::chrono::high_resolution_clock::now(); 		
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		m_logger->info("[" __FUNCTION__ "] Request parsed in {} ms", duration.count());
+			end = std::chrono::high_resolution_clock::now(); 		
+			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			m_logger->info("[" __FUNCTION__ "] Request parsed in {} ms", duration.count());
 
-		start = std::chrono::high_resolution_clock::now();
+			start = std::chrono::high_resolution_clock::now();
 
-        auto res = m_req_handler->handleRequest(*request);
+			auto res = m_req_handler->handleRequest(*request);
 
-		end = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		m_logger->info("[" __FUNCTION__ "] Request handled in {} ms", duration.count());
+			end = std::chrono::high_resolution_clock::now();
+			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			m_logger->info("[" __FUNCTION__ "] Request handled in {} ms", duration.count());
 
-		if (res)
-		{
-			asio::write(socket, asio::buffer(res->str()));
+
+            if (request->type() == IRequest::RequestType::Http)
+            {
+				bool keep_alive = false;
+
+				if (request->getVersion() == "HTTP/1.0")
+				{
+                    keep_alive = (request->getHeader("Connection") == "keep-alive");
+				}
+				else
+				{
+					keep_alive = (request->getHeader("Connection") != "close");
+				}
+
+				if (keep_alive)
+				{
+                    res->setHeader("Connection", "keep-alive");
+				}
+				else
+				{
+                    res->setHeader("Connection", "close");
+				}
+            }
+
+			if (res)
+			{
+				asio::write(socket, asio::buffer(res->str()));
+			}
+			else
+			{
+				m_logger->error("[" __FUNCTION__ "] Error handling request ");
+			}
+			end = std::chrono::high_resolution_clock::now();
+			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); 
+			m_logger->info("[" __FUNCTION__ "] Total time: {} ms", duration.count());
 		}
-		else
-		{
-			m_logger->error("[" __FUNCTION__ "] Error handling request ");
-		}
-        end = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); 
-		m_logger->info("[" __FUNCTION__ "] Total time: {} ms", duration.count());
-
 	}
 	catch (std::exception& e) 
 	{

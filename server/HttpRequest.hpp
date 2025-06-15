@@ -19,7 +19,7 @@ public:
     // Core components
     std::string method() const override {return m_method; };
     std::string uri() const override {return m_path; };
-    std::string httpVersion() const override {return m_httpVersion; };
+    std::string getVersion() const override {return m_httpVersion; };
 
     // Headers / Body
     std::string getHeader(const std::string& name) const override;

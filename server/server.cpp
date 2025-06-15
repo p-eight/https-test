@@ -13,12 +13,14 @@
 #include "Core/IBodyParser.hpp"
 #include "MultipartBodyParser.hpp"
 #include "RequestHandlers.hpp"
+#include "Configurations/ConfigFactory.hpp"
 
 int main()
 {
+    std::shared_ptr<IConfig> config = ConfigFactory::get("config.json");
 	std::shared_ptr<ILogger> logger = std::make_shared<SPDLogger>();
 	std::shared_ptr<IDatabase> db = std::make_shared<SqliteDatabase>(logger);
-	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db);
+	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db); 
 	std::shared_ptr<IRequestHandler> helloHandler = std::make_shared<HelloHandler>();
 	std::shared_ptr<IRequestHandler> defaultHandler = std::make_shared<DefaultHandler>();
 	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>(), logger);
@@ -36,7 +38,7 @@ int main()
 	db->connect("server.db");
 
 	logger->critical("HTTPS Server starting...");
-	std::shared_ptr<IServer> pServer = std::make_shared<SyncHTTPServer>(logger, std::dynamic_pointer_cast<SqliteDatabase>(db), std::dynamic_pointer_cast<IRequestHandler>(router));
+	std::shared_ptr<IServer> pServer = std::make_shared<SyncHTTPServer>(logger, std::dynamic_pointer_cast<SqliteDatabase>(db), std::dynamic_pointer_cast<IRequestHandler>(router), config);
 
 	pServer->start();
 

@@ -18,7 +18,7 @@ public:
     // Core components
     virtual std::string method() const = 0;
     virtual std::string uri() const = 0;
-    virtual std::string httpVersion() const = 0;
+    virtual std::string getVersion() const = 0;
 
     // Headers / Body
     virtual std::string getHeader(const std::string& name) const = 0;

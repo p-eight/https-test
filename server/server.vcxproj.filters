@@ -20,12 +20,12 @@
     <Filter Include="app\Loggers">
       <UniqueIdentifier>{d26a58f1-6c92-4ea7-9598-580a89d67b5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app\Servers">
+      <UniqueIdentifier>{76722280-4bb8-4327-9edb-88e41da8569a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
-      <Filter>app</Filter>
-    </ClCompile>
-    <ClCompile Include="SyncHTTPServer.cpp">
       <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="SqliteDatabase.cpp">
@@ -36,6 +36,9 @@
     </ClCompile>
     <ClCompile Include="simdjson.cpp">
       <Filter>app\Libs</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncHTTPServer.cpp">
+      <Filter>app\Servers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,9 +59,6 @@
     </ClInclude>
     <ClInclude Include="Core\IClientConnectionRepository.hpp">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SyncHTTPServer.hpp">
-      <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="SqliteDatabase.hpp">
       <Filter>app</Filter>
@@ -116,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="RequestHandlers.hpp">
       <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncHTTPServer.hpp">
+      <Filter>app\Servers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
