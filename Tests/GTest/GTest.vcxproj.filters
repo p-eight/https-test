@@ -16,6 +16,15 @@
     <ClCompile Include="..\..\server\HttpRequest.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="HttpResponseTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONConfigTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigFactoryTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Tests">
@@ -39,6 +48,15 @@
       <Filter>Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\..\server\HttpRequest.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\HttpResponse.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\Configurations\JSONConfig.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\Configurations\ConfigFactory.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
