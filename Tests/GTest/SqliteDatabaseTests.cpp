@@ -39,7 +39,7 @@ namespace SqliteDatabaseTests
         EXPECT_TRUE(db.connect(db_path));
     }
 
-    class SqliteDatabaseClassTest : public ::testing::Test
+    class SqliteDBIClientRepositoryTest : public ::testing::Test
     {
     protected:
         std::shared_ptr<ILoggerMock> m_logger;
@@ -57,7 +57,7 @@ namespace SqliteDatabaseTests
         };
     };
 
-    TEST_F(SqliteDatabaseClassTest, AddsOneClient)
+    TEST_F(SqliteDBIClientRepositoryTest, AddsOneClient)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         
@@ -66,7 +66,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 1); // Assuming first client gets ID 1
     }
 
-    TEST_F(SqliteDatabaseClassTest, RemovesOneClient)
+    TEST_F(SqliteDBIClientRepositoryTest, RemovesOneClient)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
 
@@ -77,7 +77,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 0); // Client count should be 0 after removal
     }
 
-    TEST_F(SqliteDatabaseClassTest, AddsMultipleClients)
+    TEST_F(SqliteDBIClientRepositoryTest, AddsMultipleClients)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
 
@@ -88,7 +88,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 2); // Two clients added
     }
 
-    TEST_F(SqliteDatabaseClassTest, RemovesMultipleClients)
+    TEST_F(SqliteDBIClientRepositoryTest, RemovesMultipleClients)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
 
@@ -103,7 +103,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 1); // Client count should be 2 after removal
     }
 
-    TEST_F(SqliteDatabaseClassTest, RemovesAllClients)
+    TEST_F(SqliteDBIClientRepositoryTest, RemovesAllClients)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
 
@@ -115,7 +115,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 0); // Client count should be 0 after removal
     }
 
-    TEST_F(SqliteDatabaseClassTest, AddsMillionClients)
+    TEST_F(SqliteDBIClientRepositoryTest, AddsMillionClients)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         EXPECT_CALL(*m_logger, info(::testing::_)).Times(1001);
@@ -127,7 +127,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 1000);
     }
 
-    TEST_F(SqliteDatabaseClassTest, IdAfterRemoveClient)
+    TEST_F(SqliteDBIClientRepositoryTest, IdAfterRemoveClient)
     {
         int client_id1 = m_db->add_client(client_ip1);
         EXPECT_TRUE(m_db->remove_client(client_id1));
@@ -141,7 +141,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(m_db->get_client_count(), 2);
     }
 
-    TEST_F(SqliteDatabaseClassTest, GetClientById)
+    TEST_F(SqliteDBIClientRepositoryTest, GetClientById)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         int client_id = m_db->add_client(client_ip1);
@@ -150,7 +150,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(client.ip, client_ip1);
     }
 
-    TEST_F(SqliteDatabaseClassTest, GetClientByIp)
+    TEST_F(SqliteDBIClientRepositoryTest, GetClientByIp)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         int client_id = m_db->add_client(client_ip1);
@@ -159,7 +159,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(client.ip, client_ip1);
     }
 
-    TEST_F(SqliteDatabaseClassTest, GetAllClients)
+    TEST_F(SqliteDBIClientRepositoryTest, GetAllClients)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         m_db->add_client(client_ip1);
@@ -172,7 +172,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(clients[2].ip, client_ip3);
     }
 
-    TEST_F(SqliteDatabaseClassTest, IncrementClientConnections)
+    TEST_F(SqliteDBIClientRepositoryTest, IncrementClientConnections)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         auto client_id = m_db->add_client(client_ip1);
@@ -186,7 +186,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(client.connection_count, 10);
     }
 
-    TEST_F(SqliteDatabaseClassTest, IncrementClientEvents)
+    TEST_F(SqliteDBIClientRepositoryTest, IncrementClientEvents)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         auto client_id = m_db->add_client(client_ip1);
@@ -199,7 +199,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(client.event_count, 10);
     }
 
-    TEST_F(SqliteDatabaseClassTest, GetClientIDByIP)
+    TEST_F(SqliteDBIClientRepositoryTest, GetClientIDByIP)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         auto id = m_db->add_client(client_ip1);
@@ -207,7 +207,7 @@ namespace SqliteDatabaseTests
         EXPECT_EQ(id, get_id);
     }
 
-    TEST_F(SqliteDatabaseClassTest, GetClientIPByID)
+    TEST_F(SqliteDBIClientRepositoryTest, GetClientIPByID)
     {
         EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
         auto client_id = m_db->add_client(client_ip1);
