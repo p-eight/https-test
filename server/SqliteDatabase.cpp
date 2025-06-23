@@ -340,7 +340,7 @@ int SqliteDatabase::get_client_ip_by_id(int client_id)
     }
     auto client_ip = sqlite3_column_int(stmt, 0);
 
-    return client_id;
+    return client_ip;
 }
 
 int SqliteDatabase::get_client_count()
