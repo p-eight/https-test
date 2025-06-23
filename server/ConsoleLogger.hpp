@@ -5,27 +5,27 @@
 class ConsoleLogger : public ILogger {
 public:
 	
-	void log(LogLevel level, std::string_view message) override {
+	void log(LogLevel level, const std::string& message) override {
 		std::cout << "[" << level_to_string(level) << "] " << message << std::endl;
 	}
 
-	void trace(std::string_view message) override {
+	void trace(const std::string& message) override {
 		log(LogLevel::Trace, message);
 	}
 
-	void debug(std::string_view message) override {
+	void debug(const std::string& message) override {
 		log(LogLevel::Debug, message);
 	}
 
-	void info(std::string_view message) override {
+	void info(const std::string& message) override {
 		log(LogLevel::Info, message);
 	}
 
-	void error(std::string_view message) override {
+	void error(const std::string& message) override {
 		log(LogLevel::Error, message);
 	}
 
-	void critical(std::string_view message) override {
+	void critical(const std::string& message) override {
 		log(LogLevel::Critical, message);
 	}
 

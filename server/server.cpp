@@ -20,7 +20,12 @@ int main()
     std::shared_ptr<IConfig> config = ConfigFactory::get("config.json");
 	std::shared_ptr<ILogger> logger = std::make_shared<SPDLogger>();
 	std::shared_ptr<IDatabase> db = std::make_shared<SqliteDatabase>(logger);
-	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db); 
+    if (!db->connect("server_sqlite.db"))
+    {
+        logger->critical("Failed to connect to the database.");
+        return 1;
+    }
+	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db);
 	std::shared_ptr<IRequestHandler> helloHandler = std::make_shared<HelloHandler>();
 	std::shared_ptr<IRequestHandler> defaultHandler = std::make_shared<DefaultHandler>();
 	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>(), logger);

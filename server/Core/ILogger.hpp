@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <string_view>
 #include <fmt/core.h>
 
 class ILogger {
@@ -16,14 +15,14 @@ public:
     virtual ~ILogger() = default;
 
     // Base method
-    virtual void log(LogLevel level, std::string_view message) = 0;
+    virtual void log(LogLevel level, const std::string& message) = 0;
 
     // Overloads accepting dynamic strings
-    virtual void trace(std::string_view message) = 0;
-    virtual void debug(std::string_view message) = 0;
-    virtual void info(std::string_view message) = 0;
-    virtual void error(std::string_view message) = 0;
-    virtual void critical(std::string_view message) = 0;
+    virtual void trace(const std::string& message) = 0;
+    virtual void debug(const std::string& message) = 0;
+    virtual void info(const std::string& message) = 0;
+    virtual void error(const std::string& message) = 0;
+    virtual void critical(const std::string& message) = 0;
 
     // Overloads with fmt compile-time checked formatting
     template<typename... Args>

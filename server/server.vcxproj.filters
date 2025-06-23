@@ -23,12 +23,12 @@
     <Filter Include="app\Servers">
       <UniqueIdentifier>{76722280-4bb8-4327-9edb-88e41da8569a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app\Databases">
+      <UniqueIdentifier>{460b6c24-09eb-438b-9f10-d8b15aa81e8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
-      <Filter>app</Filter>
-    </ClCompile>
-    <ClCompile Include="SqliteDatabase.cpp">
       <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="HttpRequest.cpp">
@@ -39,6 +39,9 @@
     </ClCompile>
     <ClCompile Include="SyncHTTPServer.cpp">
       <Filter>app\Servers</Filter>
+    </ClCompile>
+    <ClCompile Include="SqliteDatabase.cpp">
+      <Filter>app\Databases</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,12 +62,6 @@
     </ClInclude>
     <ClInclude Include="Core\IClientConnectionRepository.hpp">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SqliteDatabase.hpp">
-      <Filter>app</Filter>
-    </ClInclude>
-    <ClInclude Include="sql_queries.hpp">
-      <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="Core\IRequest.hpp">
       <Filter>Core</Filter>
@@ -119,6 +116,12 @@
     </ClInclude>
     <ClInclude Include="SyncHTTPServer.hpp">
       <Filter>app\Servers</Filter>
+    </ClInclude>
+    <ClInclude Include="sql_queries.hpp">
+      <Filter>app\Databases</Filter>
+    </ClInclude>
+    <ClInclude Include="SqliteDatabase.hpp">
+      <Filter>app\Databases</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

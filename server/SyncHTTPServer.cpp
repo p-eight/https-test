@@ -149,8 +149,23 @@ static void read_full_request(asio::ip::tcp::socket& socket, asio::streambuf &bu
 
 void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket, asio::streambuf& asio_buffer, std::ostringstream& request_data)
 {
-	try {
-		while (m_server_running && !socket.is_open())
+	try 
+	{
+		int client_ip = socket.remote_endpoint().address().to_v4().to_uint();
+		auto client_id = m_client_repo->get_client_id_by_ip(client_ip);
+		if (-1 == client_id)
+		{
+			client_id = m_client_repo->add_client(client_ip);
+		}
+		if (-1 == client_id)
+		{
+			if (!m_client_repo->increment_connection_count(client_id))
+			{
+				m_logger->error("[Conn Thread] Failed to increment connection count for client ID: {}", client_id);
+			}
+		}
+
+		while (m_server_running && socket.is_open())
 		{
 
 			auto start = std::chrono::high_resolution_clock::now();

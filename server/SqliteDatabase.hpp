@@ -13,7 +13,8 @@ class SqliteDatabase : public IDatabase, public IClientRepository
 {
 public:
 
-	SqliteDatabase(std::shared_ptr<ILogger> _log, std::string db_path = "::memory") : m_logger(_log), m_db_path(db_path)
+	SqliteDatabase(std::string db_path = ":memory:") : m_logger(nullptr), m_db_path(db_path) {};
+	SqliteDatabase(std::shared_ptr<ILogger> _log, std::string db_path = ":memory:") : m_logger(_log), m_db_path(db_path)
 	{
 		if (!m_logger)
 		{
@@ -26,8 +27,17 @@ public:
 		disconnect();
 	}
 
+    void SetLogger(std::shared_ptr<ILogger> logger)
+    {
+        if (!logger)
+        {
+            throw std::runtime_error("Logger cant be null");
+        }
+        m_logger = logger;
+    }
 	// IDatabase interface
 	bool connect(const std::string& connection_string) override;
+	bool connect();
 	void disconnect() override;
 
 	//IClientRepository interface
@@ -44,10 +54,11 @@ public:
 	std::vector<client> get_all_clients() override;
 
 	/*//IClientConnectionRepository interface
-	int add_client_connection(int client_id, int connection_timestamp) = 0;
-	bool remove_client_connection(int connection_id) = 0;
-	bool remove_all_client_connections() = 0;
-	int get_client_connection_count(int client_id) = 0;
+	int add_client_connection(int client_id, int connection_timestamp) override;
+	bool remove_connection(int connection_id) override;
+	bool remove_client_connections(int client_id) override;
+	bool remove_all_client_connections() override;
+	int get_client_connection_count(int client_id) override;
 
 	//IEventRepository interface
 	int add_event(int client_id, int connection_id, int timestamp, const std::string& event_data) = 0;
@@ -91,6 +102,10 @@ private:
 		}
 		return true;
 	}
+
+    inline bool begin_transaction();
+    inline bool commit_transaction();
+    inline bool rollback_transaction();
 };
 
 class sqlite3_stmt_resetter {

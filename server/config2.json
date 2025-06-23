@@ -1,0 +1,42 @@
+{
+    "json" : "config.json",
+    "xml" : "config.xml",
+    "registry": "HKEY_LOCAL_MACHINE\\SOFTWARE\\MyApp",
+    "items" : {
+        "hostname" : {
+            "source_type" : 0, /* should read from "json" : "config.json" */
+            "path" : "settings.server",
+            "value" : "hostname"
+        },
+        "port" : {
+            "source_type" : 1, /* should read from "xml" : "config.xml" */
+            "path" : "settings.server",
+            "value" : "port"
+        },
+        "username" : {
+            "source_type" : 2, /* should read from "registry": "HKEY_LOCAL_MACHINE\\SOFTWARE\\MyApp" */
+            "value" : "UserName"
+        },
+        "bin1_version" : {
+            "source_type" : 3, /* should read file version */
+            "source" : "C:\\Program Files\\MyApp\\bin1.exe"
+        },
+        "hostname2" : {
+            "source_type" : 4, /* should read from another json file indicated here as source */
+            "source" : "config2.json",
+            "path" : "settings.server",
+            "value" : "hostname"
+        },
+        "port2" : {
+            "source_type" : 5, /* hould read from another xml file indicated here as source" */
+            "source" : "config2.xml",
+            "path" : "settings.server",
+            "value" : "port"
+        },
+        "username2" : {
+            "source_type" : 6, /* should read from a different registry key */
+            "source" : "HKEY_LOCAL_MACHINE\\SOFTWARE\\MyApp2",
+            "path" : "hostname"
+        }
+    }
+}

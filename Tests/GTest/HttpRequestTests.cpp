@@ -8,7 +8,7 @@ namespace HttpRequestTests
 
         EXPECT_EQ(req.method(), "GET");
         EXPECT_EQ(req.uri(), "/users");
-        EXPECT_EQ(req.httpVersion(), "HTTP/1.1");
+        EXPECT_EQ(req.getVersion(), "HTTP/1.1");
     }
 
     TEST(HttpRequestTest, ParsesHeadersCorrectly) {
@@ -58,7 +58,7 @@ namespace HttpRequestTests
 
         EXPECT_EQ(req.method(), "");
         EXPECT_EQ(req.uri(), "");
-        EXPECT_EQ(req.httpVersion(), "");
+        EXPECT_EQ(req.getVersion(), "");
         EXPECT_TRUE(req.body().empty());
     }
 
@@ -67,7 +67,7 @@ namespace HttpRequestTests
 
         EXPECT_EQ(req.method(), "GET");
         EXPECT_EQ(req.uri(), "/pathOnly");
-        EXPECT_EQ(req.httpVersion(), "");
+        EXPECT_EQ(req.getVersion(), "");
     }
 
     TEST(HttpRequestTest, HandlesRequestLineWithoutUri) {
@@ -75,7 +75,7 @@ namespace HttpRequestTests
 
         EXPECT_EQ(req.method(), "GET");
         EXPECT_EQ(req.uri(), "");
-        EXPECT_EQ(req.httpVersion(), "");
+        EXPECT_EQ(req.getVersion(), "");
     }
 
     TEST(HttpRequestTest, HandlesHeadersWithoutColon) {

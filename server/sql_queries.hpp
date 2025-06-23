@@ -3,6 +3,12 @@
 
 namespace sql
 {
+    namespace transactions
+    {
+        inline constexpr std::string_view begin_transaction = "BEGIN TRANSACTION";
+        inline constexpr std::string_view commit_transaction = "COMMIT";
+        inline constexpr std::string_view rollback_transaction = "ROLLBACK";
+    }
 
    namespace client
    {
@@ -36,13 +42,21 @@ namespace sql
       inline constexpr std::string_view increment_client_event_count = R"sql(
          UPDATE client SET event_count = event_count + 1 WHERE id = ?;
          )sql";
-      
-      inline constexpr std::string_view select_by_id = R"sql(
+
+      inline constexpr std::string_view select_client_by_id = R"sql(
          SELECT id, ip, connection_count, event_count FROM client WHERE id = ?;
          )sql";
-      
-      inline constexpr std::string_view select_by_ip = R"sql(
+
+      inline constexpr std::string_view select_client_by_ip = R"sql(
          SELECT id, ip, connection_count, event_count FROM client WHERE ip = ?;
+         )sql";
+
+      inline constexpr std::string_view select_client_ip_by_id = R"sql(
+         SELECT ip FROM client WHERE id = ?;
+         )sql";
+
+      inline constexpr std::string_view select_client_id_by_ip = R"sql(
+         SELECT id FROM client WHERE ip = ?;
          )sql";
       
       inline constexpr std::string_view count_all = R"sql(
@@ -64,6 +78,26 @@ namespace sql
          FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE
          );
          )sql";
+
+      inline constexpr std::string_view insert_client_connection = R"sql(
+            INSERT INTO ClientConnection (client_id) VALUES (?);
+            )sql";
+      inline constexpr std::string_view remove_connection = R"sql(
+         DELETE FROM ClientConnection WHERE id = ?;
+         )sql";
+
+      inline constexpr std::string_view remove_client_connections = R"sql(
+         DELETE FROM ClientConnection WHERE client_id = ?;
+         )sql";
+
+      inline constexpr std::string_view remove_all_client_connections = R"sql(
+         DELETE FROM ClientConnection;
+         )sql";
+
+      inline constexpr std::string_view get_client_connection_count = R"sql(
+            SELECT COUNT(*) FROM ClientConnection WHERE client_id = ?;
+            )sql";
+
    }
 
    namespace event

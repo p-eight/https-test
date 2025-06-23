@@ -1,0 +1,9 @@
+{
+    "server" : 
+    {
+        "port" : 8081,
+        "max_connections" : 1,
+        "timeout" : 30,
+        "type" : "Http"
+    }    
+}

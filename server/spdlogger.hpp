@@ -29,7 +29,7 @@ public:
         spdlog::flush_every(std::chrono::milliseconds(500)); // Flush every second
     };
 
-    void log(LogLevel level, std::string_view message) override
+    void log(LogLevel level, const std::string& message) override
     {
         switch (level)
         {
@@ -51,11 +51,11 @@ public:
         }
     }
 
-    void trace(std::string_view message) override { spdlog::trace(message); }
-    void debug(std::string_view message) override { spdlog::debug(message); }
-    void info(std::string_view message) override { spdlog::info(message); }
-    void error(std::string_view message) override { spdlog::error(message); }
-    void critical(std::string_view message) override { spdlog::critical(message); }
+    void trace(const std::string& message) override { spdlog::trace(message); }
+    void debug(const std::string& message) override { spdlog::debug(message); }
+    void info(const std::string& message) override { spdlog::info(message); }
+    void error(const std::string& message) override { spdlog::error(message); }
+    void critical(const std::string& message) override { spdlog::critical(message); }
 
 private:
     std::shared_ptr< spdlog::details::thread_pool> m_thread_pool;
