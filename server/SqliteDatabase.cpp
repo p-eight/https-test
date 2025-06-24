@@ -19,9 +19,9 @@ void SqliteDatabase::CreateDatabase()
    /* create tables */
 	m_prepared_statements.emplace("create_client_table", create_preparated_query(m_db.get(), sql::client::create_table, m_logger));
 	execute_statament("create_client_table");
-	m_prepared_statements.emplace("create_client_connection_table", create_preparated_query(m_db.get(), sql::client_connection::query_create_table, m_logger));
+	m_prepared_statements.emplace("create_client_connection_table", create_preparated_query(m_db.get(), sql::client_connection::create_table, m_logger));
 	execute_statament("create_client_connection_table");
-	m_prepared_statements.emplace("create_event_table", create_preparated_query(m_db.get(), sql::event::query_create_table, m_logger));
+	m_prepared_statements.emplace("create_event_table", create_preparated_query(m_db.get(), sql::event::create_table, m_logger));
 	execute_statament("create_event_table");
 
     /* transaction */
@@ -41,6 +41,13 @@ void SqliteDatabase::CreateDatabase()
    m_prepared_statements.emplace("select_client_id_by_ip", create_preparated_query(m_db.get(), sql::client::select_client_id_by_ip, m_logger));
    m_prepared_statements.emplace("count_all", create_preparated_query(m_db.get(), sql::client::count_all, m_logger));
    m_prepared_statements.emplace("select_all", create_preparated_query(m_db.get(), sql::client::select_all, m_logger));
+
+   /* IClientConnectionRepository */ 
+   m_prepared_statements.emplace("insert_client_connection", create_preparated_query(m_db.get(), sql::client_connection::insert_client_connection, m_logger));
+   m_prepared_statements.emplace("remove_connection_by_id", create_preparated_query(m_db.get(), sql::client_connection::remove_connection_by_id, m_logger));
+   m_prepared_statements.emplace("remove_client_connections", create_preparated_query(m_db.get(), sql::client_connection::remove_client_connections, m_logger));
+   m_prepared_statements.emplace("remove_all_connections", create_preparated_query(m_db.get(), sql::client_connection::remove_all_connections, m_logger));
+   m_prepared_statements.emplace("get_client_connection_count", create_preparated_query(m_db.get(), sql::client_connection::get_client_connection_count, m_logger));
 }
 
 // IDatabase interface
@@ -459,27 +466,168 @@ inline bool SqliteDatabase::rollback_transaction()
     return true;
 }
 
-//int SqliteDatabase::add_client_connection(int client_id, int connection_timestamp)
-//{
-//
-//}
-//
-//bool SqliteDatabase::remove_connection(int connection_id)
-//{
-//
-//}
-//
-//bool SqliteDatabase::remove_client_connections(int connection_id)
-//{
-//
-//}
-//
-//bool SqliteDatabase::remove_all_client_connections()
-//{
-//
-//}
-//
-//int SqliteDatabase::get_client_connection_count(int client_id)
-//{
-//
-//}
+/* IClientConnectionRepository */
+int SqliteDatabase::add_client_connection(int client_id, int connection_timestamp)
+{
+    if (!begin_transaction())
+    {
+        m_logger->error("Failed to begin transaction for adding client connection");
+        return -1;
+    }
+
+    auto stmt = m_prepared_statements["insert_client_connection"].get();
+    sqlite3_stmt_resetter reset(stmt);
+    if (!stmt)
+    {
+        m_logger->error("Failed to prepare statement for adding client connection");
+        rollback_transaction();
+        return -1;
+    }
+    sqlite3_bind_int(stmt, 1, client_id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        m_logger->error("Failed to add client connection: {}", sqlite3_errmsg(m_db.get()));
+        rollback_transaction();
+        return -1;
+    }
+
+    int connection_id = static_cast<int>(sqlite3_last_insert_rowid(m_db.get()));
+    m_logger->trace("Client connection added with ID: {}", connection_id);
+    if (!commit_transaction())
+    {
+        m_logger->error("Failed to commit database changes");
+        return -1;
+    }
+    return connection_id;
+}
+
+bool SqliteDatabase::remove_connection(int connection_id)
+{
+    if (!begin_transaction())
+    {
+        m_logger->error("Failed to begin transaction for remove connection by id");
+        return false;
+    }
+
+    if (auto stmt = m_prepared_statements["remove_connection_by_id"].get(); stmt)
+    {
+        sqlite3_stmt_resetter reset(stmt);
+        sqlite3_bind_int(stmt, 1, connection_id);
+        int rc = sqlite3_step(stmt);
+        if (SQLITE_DONE != rc)
+        {
+            m_logger->error("Failed to remove connection by id");
+            rollback_transaction();
+        }
+        else if (!commit_transaction())
+        {
+            m_logger->error("Failed to commit changes");
+            rollback_transaction();
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+
+        m_logger->error("Failed to get prepared statement for remove connection by id");
+        rollback_transaction();
+    }
+    return false;
+}
+
+bool SqliteDatabase::remove_client_connections(int client_id)
+{
+    if (!begin_transaction())
+    {
+        m_logger->error("Failed to begin transaction for remove clients connections");
+        return false;
+    }
+
+    if (auto stmt = m_prepared_statements["remove_client_connections"].get(); stmt)
+    {
+        sqlite3_stmt_resetter reset(stmt);
+        sqlite3_bind_int(stmt, 1, client_id);
+        int rc = sqlite3_step(stmt);
+        if (SQLITE_DONE != rc)
+        {
+            m_logger->error("Failed to remove clients connections");
+            rollback_transaction();
+        }
+        else if (!commit_transaction())
+        {
+            m_logger->error("Failed to commit changes");
+            rollback_transaction();
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+
+        m_logger->error("Failed to get prepared statement for remove clients connections");
+        rollback_transaction();
+    }
+    return false;
+}
+
+bool SqliteDatabase::remove_all_connections()
+{
+    if (!begin_transaction())
+    {
+        m_logger->error("Failed to begin transaction for remove all connections");
+        return false;
+    }
+
+    auto stmt = m_prepared_statements["remove_all_connections"].get();
+    sqlite3_stmt_resetter reset(stmt);
+
+    if (!stmt)
+    {
+        m_logger->error("Failed to get prepared statement for remove all connections");
+        rollback_transaction();
+        return false;
+    }
+
+    int rc = sqlite3_step(stmt);
+    if (SQLITE_DONE != rc)
+    {
+        m_logger->error("Failed to remove all connections");
+        rollback_transaction();
+        return false;
+    }
+
+    if (!commit_transaction())
+    {
+        m_logger->error("Failed to commit changes");
+        rollback_transaction();
+        return false;
+    }
+
+    return true;
+}
+
+int SqliteDatabase::get_client_connection_count(int client_id)
+{
+    auto stmt = m_prepared_statements["get_client_connection_count"].get();
+    if (!stmt)
+    {
+        m_logger->error("Failed to prepare statement for getting client connection count");
+    }
+    sqlite3_stmt_resetter reset(stmt);
+    sqlite3_bind_int(stmt, 1, client_id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW)
+    {
+        m_logger->error("Failed to get client connection count for client {}: {}", client_id, sqlite3_errmsg(m_db.get()));
+        return -1;
+    }
+    int connection_count = sqlite3_column_int(stmt, 0);
+    m_logger->trace("Client ({}) connection count: {}", client_id, connection_count);
+    return connection_count;
+}

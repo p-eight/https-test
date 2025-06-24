@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <unordered_map>
 
-class SqliteDatabase : public IDatabase, public IClientRepository
+class SqliteDatabase : public IDatabase, public IClientRepository, public IClientConnectionRepository
 {
 public:
 
@@ -53,14 +53,14 @@ public:
 	int get_client_count() override;
 	std::vector<client> get_all_clients() override;
 
-	/*//IClientConnectionRepository interface
-	int add_client_connection(int client_id, int connection_timestamp) override;
+	//IClientConnectionRepository interface
+	int add_client_connection(int client_id, int connection_timestamp = 0) override;
 	bool remove_connection(int connection_id) override;
 	bool remove_client_connections(int client_id) override;
-	bool remove_all_client_connections() override;
+	bool remove_all_connections() override;
 	int get_client_connection_count(int client_id) override;
 
-	//IEventRepository interface
+	/*//IEventRepository interface
 	int add_event(int client_id, int connection_id, int timestamp, const std::string& event_data) = 0;
 	bool remove_event(int event_id) = 0;
 	bool remove_all_events() = 0;

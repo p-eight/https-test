@@ -214,4 +214,109 @@ namespace SqliteDatabaseTests
         auto client_ip = m_db->get_client_ip_by_id(client_id);
         EXPECT_EQ(client_ip, client_ip1);
     }
+
+    class SqliteDBIClientConnectionRepositoryTest : public ::testing::Test
+    {
+    protected:
+        std::shared_ptr<ILoggerMock> m_logger;
+        std::unique_ptr<SqliteDatabase> m_db;
+
+        int client1_ip = 123456789;
+        int client2_ip = 987654321;
+        int client3_ip = 987654320;
+        int client1_id = 0;
+        int client2_id = 0;
+        int client3_id = 0;
+
+        void SetUp() override
+        {
+            m_logger = std::make_shared<ILoggerMock>();
+            m_db = std::make_unique<SqliteDatabase>(m_logger, ":memory:");
+            m_db->connect();
+            client1_id = m_db->add_client(client1_ip);
+            client2_id = m_db->add_client(client2_ip);
+            client3_id = m_db->add_client(client3_ip);
+        };
+    };
+
+    TEST_F(SqliteDBIClientConnectionRepositoryTest, AddsOneConnection)
+    {
+        EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
+        int cli1_connection_id = m_db->add_client_connection(client1_id);
+        EXPECT_EQ(cli1_connection_id, 1);
+        auto cli1_connection_count = m_db->get_client_connection_count(client1_id);
+        EXPECT_EQ(cli1_connection_count, 1);
+        
+    }
+
+    TEST_F(SqliteDBIClientConnectionRepositoryTest, AddsMultipleConnectionsForMultipleClients)
+    {
+        EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
+        for (int i = 0; i < 10; ++i)
+        {
+            int cli1_connection_id = m_db->add_client_connection(client1_id);
+            int cli2_connection_id = m_db->add_client_connection(client2_id);
+            int cli3_connection_id = m_db->add_client_connection(client3_id);
+            EXPECT_EQ(cli1_connection_id, (i * 3) + 1);
+            EXPECT_EQ(cli2_connection_id, (i * 3) + 2);
+            EXPECT_EQ(cli3_connection_id, (i * 3) + 3);
+        }
+    }
+
+    TEST_F(SqliteDBIClientConnectionRepositoryTest, GetsMultipleClientsCount)
+    {
+
+        EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
+        for (int i = 0; i < 10; ++i)
+        {
+            m_db->add_client_connection(client1_id);
+            m_db->add_client_connection(client2_id);
+            m_db->add_client_connection(client3_id);
+        }
+
+        auto cli1_connection_count = m_db->get_client_connection_count(client1_id);
+        auto cli2_connection_count = m_db->get_client_connection_count(client2_id);
+        auto cli3_connection_count = m_db->get_client_connection_count(client3_id);
+        EXPECT_EQ(cli1_connection_count, 10);
+        EXPECT_EQ(cli2_connection_count, 10);
+        EXPECT_EQ(cli3_connection_count, 10);
+    }
+
+    TEST_F(SqliteDBIClientConnectionRepositoryTest, RemovesClientConnections)
+    {
+
+        EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
+        for (int i = 0; i < 10; ++i)
+        {
+            m_db->add_client_connection(client1_id);
+            m_db->add_client_connection(client2_id);
+        }
+
+        auto remove_client_connections = m_db->remove_client_connections(client1_id);
+        EXPECT_TRUE(remove_client_connections);
+
+        auto cli1_connection_count = m_db->get_client_connection_count(client1_id);
+        auto cli2_connection_count = m_db->get_client_connection_count(client2_id);
+        EXPECT_EQ(cli1_connection_count, 0);
+        EXPECT_EQ(cli2_connection_count, 10);
+    }
+
+    TEST_F(SqliteDBIClientConnectionRepositoryTest, RemovesAllConnections)
+    {
+
+        EXPECT_CALL(*m_logger, error(::testing::_)).Times(0); // fail if called
+        for (int i = 0; i < 10; ++i)
+        {
+            m_db->add_client_connection(client1_id);
+            m_db->add_client_connection(client2_id);
+        }
+
+        auto remove_all_connections = m_db->remove_all_connections();
+        EXPECT_TRUE(remove_all_connections);
+
+        auto cli1_connection_count = m_db->get_client_connection_count(client1_id);
+        auto cli2_connection_count = m_db->get_client_connection_count(client2_id);
+        EXPECT_EQ(cli1_connection_count, 0);
+        EXPECT_EQ(cli2_connection_count, 0);
+    }
 }

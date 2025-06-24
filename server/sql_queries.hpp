@@ -70,7 +70,7 @@ namespace sql
 
    namespace client_connection
    {
-      inline constexpr std::string_view query_create_table = R"sql(
+      inline constexpr std::string_view create_table = R"sql(
          CREATE TABLE IF NOT EXISTS ClientConnection (
          id INTEGER PRIMARY KEY,
          client_id INTEGER NOT NULL,
@@ -82,7 +82,7 @@ namespace sql
       inline constexpr std::string_view insert_client_connection = R"sql(
             INSERT INTO ClientConnection (client_id) VALUES (?);
             )sql";
-      inline constexpr std::string_view remove_connection = R"sql(
+      inline constexpr std::string_view remove_connection_by_id = R"sql(
          DELETE FROM ClientConnection WHERE id = ?;
          )sql";
 
@@ -90,7 +90,7 @@ namespace sql
          DELETE FROM ClientConnection WHERE client_id = ?;
          )sql";
 
-      inline constexpr std::string_view remove_all_client_connections = R"sql(
+      inline constexpr std::string_view remove_all_connections = R"sql(
          DELETE FROM ClientConnection;
          )sql";
 
@@ -102,7 +102,7 @@ namespace sql
 
    namespace event
    {
-      inline constexpr std::string_view query_create_table = R"sql(
+      inline constexpr std::string_view create_table = R"sql(
          CREATE TABLE IF NOT EXISTS Event (
          id INTEGER PRIMARY KEY,
          client_id INTEGER NOT NULL,
