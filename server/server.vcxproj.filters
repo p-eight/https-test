@@ -43,6 +43,9 @@
     <ClCompile Include="SqliteDatabase.cpp">
       <Filter>app\Databases</Filter>
     </ClCompile>
+    <ClCompile Include="MultiThreadHTTPServer.cpp">
+      <Filter>app\Servers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\IDatabase.hpp">
@@ -122,6 +125,17 @@
     </ClInclude>
     <ClInclude Include="SqliteDatabase.hpp">
       <Filter>app\Databases</Filter>
+    </ClInclude>
+    <ClInclude Include="VoidConcreteClasses.hpp" />
+    <ClInclude Include="MultiThreadHTTPServer.hpp">
+      <Filter>app\Servers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.hpp" />
+    <ClInclude Include="SimpleThreadPool.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="AsyncClientHandler.hpp">
+      <Filter>app\Servers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

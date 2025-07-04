@@ -143,12 +143,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HttpRequest.cpp" />
+    <ClCompile Include="MultiThreadHTTPServer.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="simdjson.cpp" />
     <ClCompile Include="SqliteDatabase.cpp" />
     <ClCompile Include="SyncHTTPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsyncClientHandler.hpp" />
     <ClInclude Include="CommandRequest.hpp" />
     <ClInclude Include="Configurations\ConfigFactory.hpp" />
     <ClInclude Include="Configurations\JSONConfig.hpp" />
@@ -167,14 +169,18 @@
     <ClInclude Include="HttpRequest.hpp" />
     <ClInclude Include="HttpResponse.hpp" />
     <ClInclude Include="MultipartBodyParser.hpp" />
+    <ClInclude Include="MultiThreadHTTPServer.hpp" />
     <ClInclude Include="RequestFactory.hpp" />
     <ClInclude Include="RequestHandlers.hpp" />
     <ClInclude Include="RequestRouter.hpp" />
     <ClInclude Include="simdjson.h" />
+    <ClInclude Include="SimpleThreadPool.hpp" />
     <ClInclude Include="spdlogger.hpp" />
     <ClInclude Include="SqliteDatabase.hpp" />
     <ClInclude Include="sql_queries.hpp" />
     <ClInclude Include="SyncHTTPServer.hpp" />
+    <ClInclude Include="ThreadPool.hpp" />
+    <ClInclude Include="VoidConcreteClasses.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\sqlite\sqlite.vcxproj">

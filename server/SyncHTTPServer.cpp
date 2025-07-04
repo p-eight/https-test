@@ -157,12 +157,17 @@ void SyncHTTPServer::handle_client(asio::ip::tcp::socket& socket, asio::streambu
 		{
 			client_id = m_client_repo->add_client(client_ip);
 		}
-		if (-1 == client_id)
+		if (-1 != client_id)
 		{
 			if (!m_client_repo->increment_connection_count(client_id))
 			{
 				m_logger->error("[Conn Thread] Failed to increment connection count for client ID: {}", client_id);
 			}
+			else if (m_client_conn_repo->add_client_connection(client_id, GetCurrentTime()))
+			{
+				m_logger->error("[Conn Thread] Failed to add connection for client ID: {}", client_id);
+			}
+
 		}
 
 		while (m_server_running && socket.is_open())

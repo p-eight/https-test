@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include "IServer.hpp"
 #include "asio/asio.hpp"
@@ -14,11 +15,13 @@ public:
     SyncHTTPServer(\
 		std::shared_ptr<ILogger> _logger, \
 		std::shared_ptr<IClientRepository> _client_repo, \
+		std::shared_ptr<IClientConnectionRepository> _conn_repo, \
 		std::shared_ptr<IRequestHandler> _req_hdlr, \
 		std::shared_ptr<IConfig> _config = nullptr) : \
 		acceptor_(io_context_), \
 		m_logger(_logger), \
 		m_client_repo(_client_repo), \
+		m_client_conn_repo(_conn_repo), \
         m_req_handler(_req_hdlr), \
 		m_config(_config)
    {
@@ -105,6 +108,7 @@ private:
 
    std::shared_ptr<ILogger> m_logger;
    std::shared_ptr<IClientRepository> m_client_repo;
+   std::shared_ptr<IClientConnectionRepository> m_client_conn_repo;
    std::shared_ptr<IRequestHandler> m_req_handler;
    std::shared_ptr<IConfig> m_config;
 

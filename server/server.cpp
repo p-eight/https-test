@@ -14,6 +14,7 @@
 #include "MultipartBodyParser.hpp"
 #include "RequestHandlers.hpp"
 #include "Configurations/ConfigFactory.hpp"
+#include "MultiThreadHTTPServer.hpp"
 
 int main()
 {
@@ -26,6 +27,7 @@ int main()
         return 1;
     }
 	std::shared_ptr<SqliteDatabase> sqliteDb = std::dynamic_pointer_cast<SqliteDatabase>(db);
+	std::shared_ptr<IClientConnectionRepository> iClientConn = std::dynamic_pointer_cast<SqliteDatabase>(db);
 	std::shared_ptr<IRequestHandler> helloHandler = std::make_shared<HelloHandler>();
 	std::shared_ptr<IRequestHandler> defaultHandler = std::make_shared<DefaultHandler>();
 	std::shared_ptr<IRequestHandler> userHandler = std::make_shared<UserHandler>(std::make_shared<MultipartBodyParser>(), logger);
@@ -43,7 +45,8 @@ int main()
 	db->connect("server.db");
 
 	logger->critical("HTTPS Server starting...");
-	std::shared_ptr<IServer> pServer = std::make_shared<SyncHTTPServer>(logger, std::dynamic_pointer_cast<SqliteDatabase>(db), std::dynamic_pointer_cast<IRequestHandler>(router), config);
+	std::shared_ptr<IServer> pServer = MultiThreadHTTPServer::Builder().setLogger(logger).setRequestHandler(std::dynamic_pointer_cast<IRequestHandler>(router)).build();;
+	//std::shared_ptr<IServer> pServer = std::make_shared<SyncHTTPServer>(logger, std::dynamic_pointer_cast<SqliteDatabase>(db), iClientConn, std::dynamic_pointer_cast<IRequestHandler>(router), config);
 
 	pServer->start();
 
